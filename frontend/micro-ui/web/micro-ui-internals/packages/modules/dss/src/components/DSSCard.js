@@ -1,4 +1,4 @@
-import { ModuleCardFullWidth } from "@egovernments/digit-ui-react-components";
+import { ModuleCardFullWidth } from "@upyog/digit-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +16,7 @@ const nationalScreenURLs = {
   faqs: {key:"national-faqs",stateKey:"national-faqs",label:"DSS_FAQS",active:false,nActive:true,others:true},
   finance: {key:"national-finance",stateKey:"finance",label:"DSS_FINANCE",active:true,nActive:false},
   about: {key:"national-about",stateKey:"national-about",label:"DSS_ABOUT_DASHBOARD",active:false,nActive:true,others:true},
+  sv: {key:"national-sv",stateKey:"sv",label:"DSS_STREET_VENDING ",active:true,nActive:true}
 };
 
 export const checkCurrentScreen = () => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
 
-import { Loader } from "@egovernments/digit-ui-react-components";
+import { Loader } from "@upyog/digit-ui-react-components";
 
 import ActionModal from "./Modal";
 
@@ -13,7 +13,7 @@ import ApplicationDetailsActionBar from "./components/ApplicationDetailsActionBa
 import ApplicationDetailsWarningPopup from "./components/ApplicationDetailsWarningPopup";
 
 const ApplicationDetails = (props) => {
-  const tenantId = Digit.ULBService.getCurrentTenantId();
+    const tenantId = Digit.ULBService.getCurrentTenantId();
   const state = Digit.ULBService.getStateId();
   const { t } = useTranslation();
   const history = useHistory();
@@ -34,6 +34,7 @@ const ApplicationDetails = (props) => {
     mutate,
     nocMutation,
     workflowDetails,
+    id,
     businessService,
     closeToast,
     moduleCode,
@@ -46,7 +47,8 @@ const ApplicationDetails = (props) => {
     showTimeLine = true,
     oldValue,
     isInfoLabel = false,
-    clearDataDetails
+    clearDataDetails,
+    isAction=false
   } = props;
   
   useEffect(() => {
@@ -56,6 +58,7 @@ const ApplicationDetails = (props) => {
   }, [showToast]);
 
   function onActionSelect(action) {
+    sessionStorage.setItem("SELECTED_ACTION", action?.action);
     if (action) {
       if(action?.isToast){
         setShowToast({ key: "error", error: { message: action?.toastMessage } });
@@ -131,6 +134,7 @@ const ApplicationDetails = (props) => {
           return;
         }
       }
+      sessionStorage.setItem("updateData",JSON.stringify(data))
       if (mutate) {
         setIsEnableLoader(true);
         mutate(data, {
@@ -143,11 +147,11 @@ const ApplicationDetails = (props) => {
             sessionStorage.removeItem("WS_SESSION_APPLICATION_DETAILS");
             setIsEnableLoader(false);
             if (isOBPS?.bpa) {
-              data.selectedAction = selectedAction;
+             // data.selectedAction = selectedAction;
               history.replace(`/digit-ui/employee/obps/response`, { data: data });
             }
             if (isOBPS?.isStakeholder) {
-              data.selectedAction = selectedAction;
+             // data.selectedAction = selectedAction;
               history.push(`/digit-ui/employee/obps/stakeholder-response`, { data: data });
             }
             if (isOBPS?.isNoc) {
@@ -170,7 +174,7 @@ const ApplicationDetails = (props) => {
               }
               return
             }
-            setShowToast({ key: "success", action: selectedAction });
+            //setShowToast({ key: "success", action: selectedAction });
             clearDataDetails && setTimeout(clearDataDetails, 3000);
             setTimeout(closeToast, 5000);
             queryClient.clear();
@@ -195,6 +199,7 @@ const ApplicationDetails = (props) => {
         <React.Fragment>
           <ApplicationDetailsContent
             applicationDetails={applicationDetails}
+            id={id}
             workflowDetails={workflowDetails}
             isDataLoading={isDataLoading}
             applicationData={applicationData}
@@ -209,6 +214,9 @@ const ApplicationDetails = (props) => {
           {showModal ? (
             <ActionModal
               t={t}
+              vending_Zone={props?.vending_Zone || []}
+              UserVendingZone={props?.UserVendingZone || ""}
+              UserVendingZoneCode={props?.UserVendingZoneCode || ""}
               action={selectedAction}
               tenantId={tenantId}
               state={state}
@@ -234,6 +242,7 @@ const ApplicationDetails = (props) => {
           ) : null}
           <ApplicationDetailsToast t={t} showToast={showToast} closeToast={closeToast} businessService={businessService} />
           <ApplicationDetailsActionBar
+            isAction={isAction} // isAction is added to enable or disable the action bar
             workflowDetails={workflowDetails}
             displayMenu={displayMenu}
             onActionSelect={onActionSelect}
@@ -242,6 +251,7 @@ const ApplicationDetails = (props) => {
             forcedActionPrefix={forcedActionPrefix}
             ActionBarStyle={ActionBarStyle}
             MenuStyle={MenuStyle}
+            applicationDetails={applicationDetails}
           />
         </React.Fragment>
       ) : (

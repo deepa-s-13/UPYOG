@@ -18,6 +18,12 @@ public class ApplicationProperties {
     @Value("${egov.es.host}")
     private String elasticSearchHost;
 
+    @Value("${egov.es.username}")
+    private String userName;
+
+    @Value("${egov.es.password}")
+    private String password;
+
     @Value("${master.data.index}")
     private String masterDataIndex;
 
@@ -41,6 +47,9 @@ public class ApplicationProperties {
 
     @Value("${max.data.list.size}")
     private Long maxDataListSize;
+    
+    @Value("${max.data.size.kafka}")
+    private Integer maxDataSizeKafka;
 
     @Value("${adaptor.ingest.system.role}")
     private String adaptorIngestSystemRole;
@@ -59,4 +68,18 @@ public class ApplicationProperties {
 
     @Value("#{${national.dashboard.usageTypeNOC}}")
     private List<String> nationalDashboardUsageTypeNOC;
+
+    @Value("#{${national.dashboard.paymentChannel}}")
+    private List<String> nationalDashboardpaymentChannel;
+    
+    @Value("#{${national.dashboard.paymentChannelMISC}}")
+    private List<String> nationalDashboardpaymentChannelMISC;
+	
+	@Value("${national.dashboard.legacy.version}")
+    private Boolean isLegacyVersionES;
+
+    @Value("${kafka.topics.notification.email}")
+    private String emailNotifTopic;
+
+	
 }

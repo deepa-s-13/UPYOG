@@ -97,6 +97,8 @@ public class EdcrApplication extends AbstractAuditable {
     private String architectInformation;
 
     private String projectType;
+    
+    //private String coreArea;
 
     private transient String permitDateTemp;
 
@@ -265,6 +267,14 @@ public class EdcrApplication extends AbstractAuditable {
     public void setProjectType(String projectType) {
         this.projectType = projectType;
     }
+    
+  /*  public String getCoreArea() {
+        return coreArea;
+    }
+
+    public void setCoreArea(String coreArea) {
+        this.coreArea = coreArea;
+    } */
 
     public String getPermitDateTemp() {
         return permitDateTemp;
