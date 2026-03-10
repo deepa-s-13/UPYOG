@@ -1,26 +1,34 @@
-FROM maven:3.9.6-amazoncorretto-17 AS build
-#FROM egovio/alpine-maven-builder-jdk-8:1-master-NA-6036091e AS build  
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
 ARG WORK_DIR
 WORKDIR /app
 
-# copy the project files
+# Copy pom first for dependency caching
 COPY ${WORK_DIR}/pom.xml ./pom.xml
+RUN mvn -B -f /app/pom.xml dependency:go-offline
+
+# Copy application source
 COPY build/maven/start.sh ./start.sh
-
-# not useful for stateless builds
-# RUN mvn -B dependency:go-offline
-
 COPY ${WORK_DIR}/src ./src
-RUN mvn -B -f /app/pom.xml package
+
+# Build jar
+RUN mvn -B -f /app/pom.xml package -DskipTests
 
 
-# Create runtime image
-FROM egovio/8-openjdk-alpine
-
+# Runtime image
+FROM eclipse-temurin:17-jre
 
 WORKDIR /opt/egov
 
-COPY --from=build /app/target/*.jar /app/start.sh /opt/egov/
+# Copy jar and start script
+COPY --from=build /app/target/*.jar /opt/egov/app.jar
+COPY --from=build /app/start.sh /opt/egov/start.sh
+
+# Fix permissions
+RUN chmod +x /opt/egov/start.sh
+
+CMD ["/opt/egov/start.sh"]
+COPY --from=build /app/start.sh /opt/egov/start.sh
 
 RUN chmod +x /opt/egov/start.sh
 
