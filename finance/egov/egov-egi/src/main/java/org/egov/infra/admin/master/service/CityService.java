@@ -143,10 +143,14 @@ public class CityService {
 
     public Map<String, Object> cityDataAsMap() {
         Map<String, Object> cityPrefs = cityPrefCache.entries(cityPrefCacheKey());
+        
         if (cityPrefs.isEmpty()) {
-            cityPrefCache.putAll(cityPrefCacheKey(), getCityByURL(getDomainName()).toMap());
+        	System.out.println("City Pref Cache Missed for key: " + cityPrefCacheKey());
+        	System.out.println("Fetching city data from DB for domain: " + getDomainName());
+            cityPrefCache.putAll(cityPrefCacheKey(), getCityByURL("citya-fin.ddns.net").toMap());
             cityPrefs = cityPrefCache.entries(cityPrefCacheKey());
         }
+        System.out.println("cityPrefs " + cityPrefs);
         return cityPrefs;
     }
 
