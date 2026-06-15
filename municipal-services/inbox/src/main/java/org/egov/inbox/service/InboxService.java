@@ -175,6 +175,14 @@ public class InboxService {
 	public InboxResponse fetchInboxData(InboxSearchCriteria criteria, RequestInfo requestInfo) {
 
 		ProcessInstanceSearchCriteria processCriteria = criteria.getProcessSearchCriteria();
+		
+		log.info("{} tenantId={}, moduleName={}, businessService={}, moduleSearchCriteria={}",
+		        "LOG",
+		        criteria.getTenantId(),
+		        processCriteria.getModuleName(),
+		        processCriteria.getBusinessService(),
+		        criteria.getModuleSearchCriteria());
+		
 		HashMap moduleSearchCriteria = criteria.getModuleSearchCriteria();
 		processCriteria.setTenantId(criteria.getTenantId());
 		Integer flag = 0;
@@ -450,9 +458,15 @@ public class InboxService {
 			} // for ewaste service
 
 			if (!ObjectUtils.isEmpty(processCriteria.getModuleName()) && processCriteria.getModuleName().equals(CHB)) {
+				log.info("{} Fetching application numbers from searcher", "CHB_LOG");
 
 				List<String> applicationNumbers = communityHallInboxFilterService
 						.fetchApplicationNumbersFromSearcher(criteria, StatusIdNameMap, requestInfo);
+				
+				log.info("{} Searcher returned {} application numbers: {}",
+						"CHB_LOG",
+				        applicationNumbers == null ? 0 : applicationNumbers.size(),
+				        applicationNumbers);
 				if (!CollectionUtils.isEmpty(applicationNumbers)) {
 					moduleSearchCriteria.put(CHB_BOOKING_NO_PARAM, applicationNumbers);
 					businessKeys.addAll(applicationNumbers);
@@ -461,6 +475,10 @@ public class InboxService {
 				} else {
 					isSearchResultEmpty = true;
 				}
+				
+				log.info("{} Updated moduleSearchCriteria={}",
+						"CHB_LOG",
+				        moduleSearchCriteria);
 			}
 
 			/*
@@ -867,10 +885,19 @@ public class InboxService {
 							(e1, e2) -> e1, LinkedHashMap::new));
 
 			ProcessInstanceResponse processInstanceResponse;
+			List<ProcessInstance> processInstances = new ArrayList<ProcessInstance>();
+			Map<String, ProcessInstance> processInstanceMap = new HashMap<>();
+
+			boolean skipWorkflowForCHB =
+			        !ObjectUtils.isEmpty(processCriteria.getModuleName())
+			        && CHB.equals(processCriteria.getModuleName());
+			
 			/*
 			 * In BPA, the stakeholder can able to submit applications for multiple cities
 			 * and in the single inbox all cities submitted applications need to show
 			 */
+			
+			if (!skipWorkflowForCHB) {
 			if (processCriteria != null && !ObjectUtils.isEmpty(processCriteria.getModuleName())
 					&& processCriteria.getModuleName().equals(BPA) && roles.contains(BpaConstants.CITIZEN)) {
 				Map<String, List<String>> tenantAndApplnNoForProcessInstance = new HashMap<>();
@@ -906,15 +933,18 @@ public class InboxService {
 				processInstanceResponse = workflowService.getProcessInstance(processCriteria, requestInfo);
 			}
 
-			List<ProcessInstance> processInstances = processInstanceResponse.getProcessInstances();
+			processInstances = processInstanceResponse.getProcessInstances();
 
-			Map<String, ProcessInstance> processInstanceMap = new HashMap<>();
+			
 			if (!CollectionUtils.isEmpty(processInstances)) {
 				for (ProcessInstance processInstance : processInstances) {
 					processInstanceMap.put(processInstance.getBusinessId(), processInstance);
 				}
 			}
+			} else {
 
+			    log.info("Skipping workflow lookup for CHB inbox");
+			}
 			// Adding searched Items in Inbox result object for WS and SW
 			if (moduleName.equals(WS) || moduleName.equals(SW)) {
 				if (!CollectionUtils.isEmpty(result)) {
@@ -930,25 +960,83 @@ public class InboxService {
 					});
 				}
 			}
+			
+			
 			Map<String, Object> finalBusinessMap = businessMap; // Create a final reference
-			if (businessObjects.length() > 0 && processInstances.size() > 0) {
+			if (businessObjects.length() > 0 && processInstances.size() > 0  && (skipWorkflowForCHB || !processInstanceMap.isEmpty())) {
+				
+				log.info("{} businessObjects={}, processInstances={}, skipWorkflowForCHB={}",
+				        "LOG",
+				        businessObjects.length(),
+				        processInstances.size(),
+				        skipWorkflowForCHB);
+				
 				if (CollectionUtils.isEmpty(businessKeys)) {
 					businessMap.keySet().forEach(businessKey -> {
 						if (null != processInstanceMap.get(businessKey)) {
+							 
+							
 							if (!isBusinessServiceWSOrSW) {
+								JSONObject businessObject =
+					                    (JSONObject) finalBusinessMap.get(businessKey);
+							 if (businessObject == null) {
+					                return;
+					            }
 								// For non- Bill Amendment Inbox search
 								Inbox inbox = new Inbox();
-								inbox.setProcessInstance(processInstanceMap.get(businessKey));
+								
+								ProcessInstance processInstance =
+					                    processInstanceMap.get(businessKey);
+
+								
+								if (processInstance != null) {
+					                inbox.setProcessInstance(processInstance);
+					            }
+								
 								inbox.setBusinessObject(toMap((JSONObject) finalBusinessMap.get(businessKey)));
-								inboxes.add(inbox);
+								if (skipWorkflowForCHB || processInstance != null) {
+					                inboxes.add(inbox);
+					            }
 							} else {
+								  JSONObject businessObject =
+						                    (JSONObject) finalBusinessMap.get(businessKey);
+
+						            if (businessObject == null) {
+						                return;
+						            }
+
 								// When Bill Amendment objects are searched
 								Inbox inbox = new Inbox();
-								inbox.setProcessInstance(processInstanceMap.get(businessKey));
+								ProcessInstance processInstance =
+					                    processInstanceMap.get(businessKey);
+
+					            if (processInstance != null) {
+					                inbox.setProcessInstance(processInstance);
+					            }
 								inbox.setBusinessObject(toMap((JSONObject) finalBusinessMap.get(businessKey)));
 								inbox.setServiceObject(toMap((JSONObject) serviceSearchMap
 										.get(inbox.getBusinessObject().get("consumerCode"))));
-								inboxes.add(inbox);
+								if (skipWorkflowForCHB) {
+
+					                ProcessInstance dummyProcess = new ProcessInstance();
+
+					                dummyProcess.setBusinessId(businessKey);
+					                dummyProcess.setBusinessService("booking-refund");
+
+					                State state = new State();
+					                state.setApplicationStatus("PENDING");
+
+					                dummyProcess.setState(state);
+
+					                inbox.setProcessInstance(dummyProcess);
+
+					                inboxes.add(inbox);
+
+					            } else if (processInstance != null) {
+
+					                inboxes.add(inbox);
+					            }
+								
 							}
 						}
 					});
