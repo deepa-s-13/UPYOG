@@ -972,6 +972,11 @@ public class InboxService {
 				        processInstances.size(),
 				        skipWorkflowForCHB);
 				
+				
+				log.info("{} businessKeys={}",
+				        "LOG",
+				        businessKeys.toString());
+				
 				if (CollectionUtils.isEmpty(businessKeys)) {
 					businessMap.keySet().forEach(businessKey -> {
 						if (null != processInstanceMap.get(businessKey)) {
@@ -995,7 +1000,29 @@ public class InboxService {
 					            }
 								
 								inbox.setBusinessObject(toMap((JSONObject) finalBusinessMap.get(businessKey)));
-								if (skipWorkflowForCHB || processInstance != null) {
+								
+								log.info("{} finalBusinessMap.getbusinessKey={}",
+								        "LOG",
+								        toMap((JSONObject) finalBusinessMap.get(businessKey)));
+								
+								if (skipWorkflowForCHB) {
+
+					                ProcessInstance dummyProcess = new ProcessInstance();
+
+					                dummyProcess.setBusinessId(businessKey);
+					                dummyProcess.setBusinessService("booking-refund");
+
+					                State state = new State();
+					                state.setApplicationStatus("PENDING");
+
+					                dummyProcess.setState(state);
+
+					                inbox.setProcessInstance(dummyProcess);
+
+					                inboxes.add(inbox);
+
+					            } else if (processInstance != null) {
+
 					                inboxes.add(inbox);
 					            }
 							} else {
@@ -1504,7 +1531,7 @@ public class InboxService {
 			throw new CustomException(ErrorConstants.INVALID_MODULE_DATA,
 					" search api could not find data in dataroot " + srvMap.get("dataRoot"));
 		}
-
+		log.info("\nfetchModuleObjects URL RESPONSE:::: " + resutls);
 		return resutls;
 	}
 
