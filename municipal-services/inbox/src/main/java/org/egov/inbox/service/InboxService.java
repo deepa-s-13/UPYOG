@@ -963,7 +963,8 @@ public class InboxService {
 			
 			
 			Map<String, Object> finalBusinessMap = businessMap; // Create a final reference
-			if (businessObjects.length() > 0 && processInstances.size() > 0  && (skipWorkflowForCHB || !processInstanceMap.isEmpty())) {
+			if (businessObjects.length() > 0
+			        && (skipWorkflowForCHB || !CollectionUtils.isEmpty(processInstances))) {
 				
 				log.info("{} businessObjects={}, processInstances={}, skipWorkflowForCHB={}",
 				        "LOG",
