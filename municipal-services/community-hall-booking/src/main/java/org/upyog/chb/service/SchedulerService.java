@@ -1,6 +1,12 @@
 package org.upyog.chb.service;
-import static org.upyog.chb.constants.CommunityHallBookingConstants.*;
+import static org.upyog.chb.constants.CommunityHallBookingConstants.CHB_ACTION_MOVETOEMPLOYEE;
+import static org.upyog.chb.constants.CommunityHallBookingConstants.CHB_REFUND_WORKFLOW_BUSINESSSERVICE;
+import static org.upyog.chb.constants.CommunityHallBookingConstants.CHB_REFUND_WORKFLOW_MODULENAME;
+import static org.upyog.chb.constants.CommunityHallBookingConstants.CHB_STATUS_BOOKED;
+import static org.upyog.chb.constants.CommunityHallBookingConstants.CHB_TENANTID;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,13 +111,15 @@ public class SchedulerService {
 	 * process
 	 * Uses ShedLock to ensure only one instance runs this job across multiple service instances
 	 */
-	@Scheduled(cron = "0 0 1 * * *")
+	//@Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "0 */1 * * * *", zone = "Asia/Kolkata")
 	@SchedulerLock(
 		name = "chbUpdateWorkflowForBookedApplicationsJob",
 		lockAtLeastFor = "PT1M",  // Hold the lock for at least 1 minute
 		lockAtMostFor = "PT30M"   // Auto-release after 30 minutes if job crashes
 	)
 	public void updateWorkflowForBookedApplications() {
+		log.info("Scheduler fired at {}", LocalDateTime.now());
 		log.info("Scheduler - Updating Workflow of Booked applications...");
 
 		String formattedDate = CommunityHallBookingUtil.parseLocalDateToString(LocalDate.now().minusDays(1),
