@@ -111,8 +111,8 @@ public class SchedulerService {
 	 * process
 	 * Uses ShedLock to ensure only one instance runs this job across multiple service instances
 	 */
+	@Scheduled(fixedRate = 10 * 60 * 1000) // 10 min for testing
 	//@Scheduled(cron = "0 0 1 * * *")
-	@Scheduled(cron = "0 */1 * * * *", zone = "Asia/Kolkata")
 	@SchedulerLock(
 		name = "chbUpdateWorkflowForBookedApplicationsJob",
 		lockAtLeastFor = "PT1M",  // Hold the lock for at least 1 minute
