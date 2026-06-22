@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -128,8 +129,22 @@ public class eSignService {
         ArrayList<eSignInput> inputList = new ArrayList<>();
         inputList.add(signInput);
         
-        eSign eSignObj = new eSign(configurations.getLicenceFile(), configurations.getPfxPath(),configurations.getPfxPassword(), configurations.getPfxAllias());
-        
+        //eSign eSignObj = new eSign(configurations.getLicenceFile(), configurations.getPfxPath(),configurations.getPfxPassword(), configurations.getPfxAllias());
+        eSign eSignObj = null;
+		try {
+			eSignObj = new eSign(
+				    configurations.getAspId(),
+				    configurations.getEsignV1Url(),
+				    configurations.getEsignV2Url(),
+				    configurations.getPfxPath(),
+				    configurations.getPfxPassword(),
+				    configurations.getPfxAllias(),
+				    configurations.getSignatureContentSize()
+				);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
         txnId = idGenService.generateTxnId(requestInfoWrapper);
         requestInfoWrapper.getTransaction().setTxnId(txnId);
@@ -183,8 +198,22 @@ public class eSignService {
             if ("1".equals(status)) {
 
                 // complete signing
-                eSign eSign = new eSign(configurations.getLicenceFile(), configurations.getPfxPath(), configurations.getPfxPassword(), configurations.getPfxAllias());
-                eSignServiceReturn serviceReturn = eSign.getSigedDocument(xml, configurations.getTempFolder() + File.separator + txnId + ".sig");
+            	eSign eSignObj = null;
+        		try {
+        			eSignObj = new eSign(
+        				    configurations.getAspId(),
+        				    configurations.getEsignV1Url(),
+        				    configurations.getEsignV2Url(),
+        				    configurations.getPfxPath(),
+        				    configurations.getPfxPassword(),
+        				    configurations.getPfxAllias(),
+        				    configurations.getSignatureContentSize()
+        				);
+        		} catch (NoSuchAlgorithmException e) {
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
+                eSignServiceReturn serviceReturn = eSignObj.getSigedDocument(xml, configurations.getTempFolder() + File.separator + txnId + ".sig");
 
                 // To convert signed pdf from base 64 encoded string to pdf file
                 if (serviceReturn.getStatus() == 1) {
