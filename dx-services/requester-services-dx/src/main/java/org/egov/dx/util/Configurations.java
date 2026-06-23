@@ -134,5 +134,20 @@ public class Configurations {
 	
 	@Value("${egov.user.endpoint}")
 	private String userEndpoint;
+	
+	
+	@Value("${esign.aspId}")
+	private String AspId;
+	
+	@Value("${esign.v1.url}")
+	private String EsignV1Url;
+	
+	@Value("${esign.v2.url}")
+	private String EsignV2Url;
+	
+	@Value("${esign.signature.content.size}")
+	private int SignatureContentSize;
+	
+
 
 }
