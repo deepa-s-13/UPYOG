@@ -1,8 +1,6 @@
 package org.egov.dx.service;
 
 import java.io.ByteArrayOutputStream;
-
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,24 +21,18 @@ import javax.xml.xpath.XPathFactory;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.dx.producer.Producer;
+import org.egov.dx.repository.TransactionRepository;
 import org.egov.dx.util.Configurations;
 import org.egov.dx.util.Utilities;
 import org.egov.dx.web.models.FileResponse;
-import org.egov.dx.web.models.IdGenerationResponse;
 import org.egov.dx.web.models.RequestInfoWrapper;
-import org.egov.dx.repository.TransactionRepository;
 import org.egov.dx.web.models.Transaction;
 import org.egov.dx.web.models.TransactionCriteria;
 import org.egov.tracer.model.CustomException;
-import org.egov.dx.service.IdGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.Document;
 
 import com.emudhra.esign.ReturnDocument;
@@ -50,8 +41,8 @@ import com.emudhra.esign.eSignInput;
 import com.emudhra.esign.eSignInputBuilder;
 import com.emudhra.esign.eSignServiceReturn;
 import com.google.gson.Gson;
+
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
