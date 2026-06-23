@@ -1,14 +1,7 @@
 package org.egov.dx.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import lombok.Getter;
 
@@ -79,7 +72,7 @@ public class Configurations {
 	@Value("${esign.licencefile}" )
 	private String licenceFile;
 	
-	//@Value("${esign.pfxpath}")
+	@Value("${esign.pfxpath}")
 	private String pfxPath;
 	
 	@Value("${esign.pfxpassword}")
@@ -155,34 +148,6 @@ public class Configurations {
 	@Value("${esign.signature.content.size}")
 	private int SignatureContentSize;
 	
-	@Value("${eSign.pfxFile}")
-	private String pfxFileName;
 
-	
-	@PostConstruct
-    public void init() throws Exception {
 
-        ClassPathResource resource = new ClassPathResource(pfxFileName);
-
-        if (!resource.exists()) {
-            throw new IllegalStateException(
-                "PFX file not found in classpath: " + pfxFileName);
-        }
-        
-        File tempFile = File.createTempFile("esign-cert-", ".pfx");
-        tempFile.deleteOnExit();
-
-        try (InputStream in = resource.getInputStream();
-             FileOutputStream out = new FileOutputStream(tempFile)) {
-
-            byte[] buffer = new byte[8192];
-            int len;
-
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
-            }
-        }
-        
-       this.pfxPath = tempFile.getAbsolutePath();
-	}
 }
