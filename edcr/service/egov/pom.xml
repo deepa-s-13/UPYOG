@@ -1093,7 +1093,7 @@
                             <version>20.10</version>
                         </dependency> -->
 		<dependency>
-			<groupId>com.upyog.project</groupId>
+			<groupId>com.aspose</groupId>
 			<artifactId>aspose-cad</artifactId>
 			<version>1.0.0</version>
 		</dependency>
