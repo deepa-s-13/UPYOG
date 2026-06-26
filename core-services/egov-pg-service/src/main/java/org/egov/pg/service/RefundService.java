@@ -117,7 +117,7 @@ public class RefundService {
 	        log.info("Gateway Refund Response: {}", newRefundTxn);
 
 	        if (newRefundTxn == null) {
-	            log.warn("Gateway returned null refund response for refundId: {}", currentRefund.getId());
+	            log.info("Gateway returned null refund response for refundId: {}", currentRefund.getId());
 	            return Collections.emptyList();
 	        }
 
@@ -126,7 +126,7 @@ public class RefundService {
 						.build();
 				List<Transaction> transactions = transactionRepository.fetchTransactions(criteria);
 				if (transactions == null || transactions.isEmpty()) {
-					log.warn("No transaction found for txnId: {}", newRefundTxn.getOriginalTxnId());
+					log.info("No transaction found for txnId: {}", newRefundTxn.getOriginalTxnId());
 				} else {
 
 					TransactionRequest TxnRequest = TransactionRequest.builder().requestInfo(requestInfo)
